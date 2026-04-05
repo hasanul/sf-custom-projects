@@ -1,0 +1,24 @@
+<template>
+    <lightning-card title="Account Search">
+        <div class="slds-m-around_medium">
+            <!-- Search Input -->
+            <lightning-input 
+                label="Search Accounts" 
+                value={searchTerm} 
+                onchange={handleSearchInput} 
+                placeholder="Type an account name..."
+            ></lightning-input>
+            
+            <!-- Auto-suggestion List -->
+            <template if:true={accounts}>
+                <ul class="slds-list_dotted">
+                    <template for:each={accounts} for:item="account">
+                        <li key={account.Id} class="slds-list__item">
+                            {account.Name}
+                        </li>
+                    </template>
+                </ul>
+            </template>
+        </div>
+    </lightning-card>
+</template>
