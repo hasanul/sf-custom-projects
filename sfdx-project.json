@@ -5,7 +5,7 @@
       "default": true
     }
   ],
-  "name": "my-projects",
+  "name": "andromeda-sf-projects",
   "namespace": "",
   "sfdcLoginUrl": "https://login.salesforce.com",
   "sourceApiVersion": "66.0",
