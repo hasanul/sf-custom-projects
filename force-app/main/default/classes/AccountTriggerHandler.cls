@@ -8,25 +8,30 @@
 
 public with sharing class AccountTriggerHandler {
     public static void updateContactState(List<Account> newAccounts, Map<Id, Account> oldAccountMap) {
-        // Create a list to hold contacts that need to be updated
-        List<Contact> contactsToUpdate = new List<Contact>();
+        Set<Id> changedAccountIds = new Set<Id>();
+        Map<Id, String> accountIdToState = new Map<Id, String>();
 
-        // Iterate through the list of updated accounts
         for (Account acc : newAccounts) {
-            // Check if BillingState has changed by comparing with the old map
             if (acc.BillingState != oldAccountMap.get(acc.Id).BillingState) {
-                // Query related contacts for this account
-                List<Contact> relatedContacts = [SELECT Id, Account_State__c FROM Contact WHERE AccountId = :acc.Id];
-                
-                // Update the Account_State__c field for each related contact
-                for (Contact con : relatedContacts) {
-                    con.Account_State__c = acc.BillingState;
-                    contactsToUpdate.add(con);
-                }
+                changedAccountIds.add(acc.Id);
+                accountIdToState.put(acc.Id, acc.BillingState);
             }
         }
-        
-        // Update the related contacts only if changes exist
+
+        if (changedAccountIds.isEmpty()) {
+            return;
+        }
+
+        List<Contact> contactsToUpdate = [
+            SELECT Id, AccountId, Account_State__c
+            FROM Contact
+            WHERE AccountId IN :changedAccountIds
+        ];
+
+        for (Contact con : contactsToUpdate) {
+            con.Account_State__c = accountIdToState.get(con.AccountId);
+        }
+
         if (!contactsToUpdate.isEmpty()) {
             update contactsToUpdate;
         }
